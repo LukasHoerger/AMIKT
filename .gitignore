@@ -1,2 +1,5 @@
+# Dependency directories
+NodeJS_RestApi/node_modules/
 
+# Spotify secret file
 spotify/secrets.h
