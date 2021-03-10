@@ -44,7 +44,7 @@ WebServer server(80);
 
 WiFiClientSecure client;
 
- ArduinoSpotify spotify(client, clientId, clientSecret);
+ArduinoSpotify spotify(client, clientId, clientSecret);
 
 Bounce2::Button button = Bounce2::Button();
 
@@ -79,7 +79,7 @@ void setup() {
   pinMode (REDPIN, OUTPUT);
   pinMode (GREENPIN, OUTPUT);
 
-  button.attach( BUTTONPIN, INPUT );
+  button.attach(BUTTONPIN, INPUT );
   button.interval(5); 
   button.setPressedState(LOW); 
   
@@ -127,30 +127,32 @@ void setup() {
 void loop() {
   server.handleClient();
   button.update();
-  
-  if ((refreshToken != NULL) && (refreshToken[0] != '\0')) { 
+  // Überprüfen ob ein Refresh Token vorhanden ist
+  if ((refreshToken != NULL) && (refreshToken[0] != '\0')) {  
+    // Zeitinterval der Aktualisierung überprüfen
     if (millis() > requestDueTime) {
-        //Serial.println(String(refreshToken));
-
+        // Abfrage des aktuell laufenden Songs
         CurrentlyPlaying currentlyPlaying = spotify.getCurrentlyPlaying(SPOTIFY_MARKET);
+        // Ausgabe des aktuellen Songs
         printCurrentlyPlaying(currentlyPlaying);
 
+        // Abfragen des Play/Pause Status
         PlayerDetails playerDetails = spotify.getPlayerDetails(SPOTIFY_MARKET);
         isPlaying = playerDetails.isPlaying;
         
         requestDueTime = millis() + delayBetweenRequests;
     }
   }
-  
-  
-
+  // Überprufen, ob der Knopf gedrückt wurde
   if ( button.pressed() ) {
-    
+    // Invertieren des aktuellen Abspielstatus
     if (!spotify.getPlayerDetails(SPOTIFY_MARKET).isPlaying) {
+      // Abspielen
       if(spotify.play()){
           Serial.println("Playing!");
       }
     } else {
+      // Pausieren
       if(spotify.pause()){
         Serial.println("Paused!");
       }
@@ -159,7 +161,10 @@ void loop() {
     isPlaying = !isPlaying;
         
   }
-  
+
+  // LED Farben in Abhängigkeit des Abspielstatus schalten
+  // Play: Grün
+  // Pause: Rot
   if (isPlaying) {
     digitalWrite(GREENPIN,HIGH);
     digitalWrite(REDPIN,LOW);
